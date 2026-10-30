@@ -1,7 +1,11 @@
 # Case Board
 
+<img width="1177" height="877" alt="Screenshot 2026-10-30 151822" src="https://github.com/user-attachments/assets/b127ce28-5bc6-4918-bc8b-455cf71133c2" />
+
 A detective-style corkboard for linking notes, images and clues with red string.
 Plain HTML, CSS and JavaScript. No build step, no dependencies.
+
+Currently, this is a fun side project only used for personal use. (Like tabletop detective games & etc)
 
 ## Features
 
