@@ -93,17 +93,25 @@
       <input id="fi" type="file" accept="image/*" multiple hidden />
     </header>
     <div id="ws">
-      <div id="cv">
-        <input
-          class="plate"
-          id="ct"
-          maxlength="40"
-          placeholder="Name this case"
-          aria-label="Case name"
-        /><svg id="ln"></svg>
+      <div id="sz">
+        <div id="cv">
+          <input
+            class="plate"
+            id="ct"
+            maxlength="40"
+            placeholder="Name this case"
+            aria-label="Case name"
+          /><svg id="ln"></svg>
+        </div>
       </div>
     </div>
     <div id="mm" aria-label="Board map"></div>
+    <div class="zoom" id="zc">
+      <button id="zo" aria-label="Zoom out" title="Zoom out (-)">−</button>
+      <button id="zv" title="Reset to 100% (0)">100%</button>
+      <button id="zi" aria-label="Zoom in" title="Zoom in (+)">+</button>
+      <button id="zf" title="Fit all cards on screen">Fit</button>
+    </div>
     <div class="dlg" id="rp" hidden>
       <p>Your case notes, oldest dated first. Copy them to paste anywhere.</p>
       <textarea id="rpx" readonly aria-label="Case report"></textarea>
@@ -121,7 +129,12 @@
           To connect two notes, press Link on one, then click the other.
           Dragging the red pin onto another note works too.
         </li>
-        <li>Click a string to label it or cut it. Press N for a new note.</li>
+        <li>
+          Click a string to label it or cut it. Press N for a new note. Drag the
+          bottom-right corner of a card to resize it (double-click the corner to
+          reset). Zoom with Ctrl/Cmd + scroll, a pinch, or the buttons at the
+          bottom right.
+        </li>
         <li>
           Drop or paste images onto the board. Mode switches between dragging
           the board and box-selecting cards. Ctrl/Cmd+A selects everything, and

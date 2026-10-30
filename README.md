@@ -7,10 +7,11 @@ Plain HTML, CSS and JavaScript. No build step, no dependencies.
 
 - **Cards:** notes, photos, sticky notes, news clippings, receipts, sketch pads, mugshots and evidence bags
 - **Strings:** link any two cards, label them, recolor them, make them dashed for theories
-- **Card extras:** dates, places, people and custom details; stamps (presets or your own text); paper colors; fold; redact
+- **Card extras:** dates, places, people and custom details; stamps (presets or your own text); paper colors; resize; fold; redact
 - **Photo filters:** color, black and white, sepia, blur
 - **Board tools:** box select, select all, duplicate, link selected, undo, search, trace connections
 - **Arrange:** timeline (by date), untangle (force layout), scatter
+- **Zoom:** 25% to 200% with buttons, Ctrl/Cmd + scroll, pinch, or the keyboard, plus a Fit button
 - **Extras:** minimap, case name plate, board themes, flashlight mode, lock ("case closed"), plain-text report, optional sound
 - **Saving:** automatic, in the browser (`localStorage`), plus copy/paste backup and restore
 
@@ -33,6 +34,8 @@ python3 -m http.server 8000
 | `Ctrl/Cmd + Z` | Undo |
 | `Delete` / `Backspace` | Delete selected cards |
 | `Shift + click` | Add or remove a card from the selection |
+| `+` / `-` / `0` | Zoom in, zoom out, reset to 100% |
+| `Ctrl/Cmd + scroll` | Zoom toward the pointer (pinch works on touch screens) |
 | `Esc` | Clear selection, close menus and panels |
 
 ## Deploy to GitHub Pages
@@ -67,6 +70,7 @@ The Backup menu shows the same JSON.
     "id": "abc123", "type": "note", "x": 100, "y": 200, "rot": -2,
     "title": "", "text": "", "img": "data:image/jpeg;base64,...",
     "f": [{ "k": "Date", "v": "2026-10-14", "t": "date" }],  // extra details
+    "w": 240, "h": 200,      // optional custom size
     "col": 0, "st": 0, "stx": "ALIBI", "rd": false, "fold": false, "flt": 0
   }],
   "links": [{ "id": "xyz789", "a": "abc123", "b": "def456", "label": "", "col": "#b3261e", "dash": false }]
@@ -83,14 +87,13 @@ The Backup menu shows the same JSON.
 
 - Storage is per browser. Use Backup to move a board between devices.
 - Many large images can fill `localStorage` (about 5 MB). Images are shrunk to 700 px on import.
-- The board is a fixed 3200 × 2200 canvas.
+- The board is a fixed 3200 × 2200 canvas (zoom changes the view, not the canvas).
 
 ## Ideas
 
 - Arrowheads on strings
 - Checklist, message-bubble and map cards
 - Multiple boards
-- Zoom
 - Export the board as an image
 
 ## License

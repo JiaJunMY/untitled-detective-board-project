@@ -963,3 +963,75 @@ body.locked #mCard {
     transition: none !important;
   }
 }
+
+#sz {
+  position: relative;
+  width: 3200px;
+  height: 2200px;
+}
+#cv {
+  transform-origin: 0 0;
+}
+#ws {
+  touch-action: pan-x pan-y;
+  background: #12100e;
+}
+.zoom {
+  position: fixed;
+  right: 12px;
+  bottom: calc(12px + 125px + 10px + env(safe-area-inset-bottom, 0px));
+  z-index: 9997;
+  display: flex;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid #2a2420;
+  box-shadow: 2px 4px 10px #0007;
+}
+.zoom button {
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  padding: 6px 10px;
+  min-width: 34px;
+  cursor: pointer;
+}
+.zoom button + button {
+  border-left: 1px solid #2a242055;
+}
+@media (max-width: 640px) {
+  .zoom {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.card .rz {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 18px;
+  height: 18px;
+  z-index: 4;
+  cursor: nwse-resize;
+  touch-action: none;
+  opacity: 0.45;
+  background: linear-gradient(
+    135deg,
+    transparent 0 50%,
+    #2a2420 50% 58%,
+    transparent 58% 70%,
+    #2a2420 70% 78%,
+    transparent 78%
+  );
+}
+.card:hover .rz,
+.card .rz:active {
+  opacity: 1;
+}
+body.locked .rz {
+  display: none;
+}
+.card.fold {
+  min-height: 0 !important;
+}

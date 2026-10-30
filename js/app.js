@@ -5,6 +5,8 @@ const $ = (s) => document.querySelector(s),
   ws = $("#ws"),
   ln = $("#ln"),
   NS = "http://www.w3.org/2000/svg";
+let Z = 1;
+const sz = $("#sz");
 const uid = () => Math.random().toString(36).slice(2, 9),
   clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 let S = null,
@@ -129,7 +131,7 @@ function mk(c) {
   d.style.zIndex = ++z;
   d.style.setProperty("--r", c.rot + "deg");
   d.innerHTML =
-    '<button class="x" title="Delete card" aria-label="Delete card">×</button><div class="pin" title="Drag this pin onto another card to link"></div><button class="lk" title="Link this card to another">Link</button><button class="cl" title="Change paper color" aria-label="Change paper color"></button><button class="rd" title="Redact notes (click again to reveal)" aria-label="Redact notes"></button><button class="fd" title="Fold or unfold this card" aria-label="Fold card">–</button><button class="sb" title="Stamp this card">Stamp</button><div class="stamp" hidden></div><div class="deg" hidden></div>' +
+    '<button class="x" title="Delete card" aria-label="Delete card">×</button><div class="pin" title="Drag this pin onto another card to link"></div><div class="rz" title="Drag to resize (double-click to reset)" aria-label="Resize card"></div><button class="lk" title="Link this card to another">Link</button><button class="cl" title="Change paper color" aria-label="Change paper color"></button><button class="rd" title="Redact notes (click again to reveal)" aria-label="Redact notes"></button><button class="fd" title="Fold or unfold this card" aria-label="Fold card">–</button><button class="sb" title="Stamp this card">Stamp</button><div class="stamp" hidden></div><div class="deg" hidden></div>' +
     (IMG.includes(c.type)
       ? '<img alt=""><button class="fl">Color</button>'
       : "") +
@@ -274,6 +276,48 @@ function mk(c) {
       save();
     };
   }
+  if (c.w) d.style.width = c.w + "px";
+  if (c.h) d.style.minHeight = c.h + "px";
+  const rz = d.querySelector(".rz");
+  rz.addEventListener("pointerdown", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (document.body.classList.contains("locked")) return;
+    const sx = e.clientX,
+      sy = e.clientY,
+      w0 = d.offsetWidth,
+      h0 = d.offsetHeight;
+    let tallDrag = false;
+    const mv = (v) => {
+      const dy = (v.clientY - sy) / Z;
+      if (Math.abs(dy) > 8) tallDrag = true;
+      c.w = Math.round(clamp(w0 + (v.clientX - sx) / Z, 120, 700));
+      d.style.width = c.w + "px";
+      if (tallDrag) {
+        c.h = Math.round(clamp(h0 + dy, 60, 900));
+        d.style.minHeight = c.h + "px";
+      }
+      fit(b);
+      drawLinks();
+    };
+    const up = () => {
+      removeEventListener("pointermove", mv);
+      removeEventListener("pointerup", up);
+      save();
+    };
+    addEventListener("pointermove", mv);
+    addEventListener("pointerup", up);
+  });
+  rz.addEventListener("dblclick", (e) => {
+    e.stopPropagation();
+    delete c.w;
+    delete c.h;
+    d.style.width = "";
+    d.style.minHeight = "";
+    fit(b);
+    drawLinks();
+    save();
+  });
   const fdb = d.querySelector(".fd");
   d.classList.toggle("fold", !!c.fold);
   if (c.fold) fdb.textContent = "+";
@@ -334,7 +378,7 @@ function mk(c) {
     save();
   };
   d.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("input,textarea,button,.pin")) return;
+    if (e.target.closest("input,textarea,button,.pin,.rz")) return;
     e.stopPropagation();
     d.style.zIndex = ++z;
     if (e.shiftKey || e.ctrlKey || e.metaKey) {
@@ -353,8 +397,8 @@ function mk(c) {
     d.setPointerCapture(e.pointerId);
     d.classList.add("lift");
     const mv = (v) => {
-      const dx = v.clientX - sx,
-        dy = v.clientY - sy;
+      const dx = (v.clientX - sx) / Z,
+        dy = (v.clientY - sy) / Z;
       grp.forEach((k, i) => {
         const n = el(k.id);
         k.x = clamp(st0[i][0] + dx, 0, W - n.offsetWidth);
@@ -380,7 +424,7 @@ function mk(c) {
     ln.append(tmp);
     const pt = (v) => {
       const r = cv.getBoundingClientRect();
-      return { x: v.clientX - r.left, y: v.clientY - r.top };
+      return { x: (v.clientX - r.left) / Z, y: (v.clientY - r.top) / Z };
     };
     const mv = (v) => {
       tmp.setAttribute("d", curve(pinPos(c), pt(v)).d);
@@ -426,14 +470,17 @@ function add(type, x, y, img) {
   const w = type === "photo" ? 200 : 210;
   c.x = clamp(
     x == null
-      ? ws.scrollLeft + ws.clientWidth / 2 - w / 2 + Math.random() * 80 - 40
+      ? (ws.scrollLeft + ws.clientWidth / 2) / Z -
+          w / 2 +
+          Math.random() * 80 -
+          40
       : x - w / 2,
     0,
     W - w,
   );
   c.y = clamp(
     y == null
-      ? ws.scrollTop + ws.clientHeight / 2 - 100 + Math.random() * 80 - 40
+      ? (ws.scrollTop + ws.clientHeight / 2) / Z - 100 + Math.random() * 80 - 40
       : y,
     0,
     H - 260,
@@ -479,8 +526,10 @@ function openPop(l, e) {
   const r = cv.getBoundingClientRect();
   pop = document.createElement("div");
   pop.className = "pop";
-  pop.style.left = clamp(e.clientX - r.left - 90, 0, W - 300) + "px";
-  pop.style.top = e.clientY - r.top + 10 + "px";
+  pop.style.left = clamp((e.clientX - r.left) / Z - 90, 0, W - 300) + "px";
+  pop.style.top = (e.clientY - r.top) / Z + 10 + "px";
+  pop.style.transformOrigin = "0 0";
+  pop.style.transform = "scale(" + 1 / Z + ")";
   pop.innerHTML =
     '<input placeholder="Label this link" aria-label="Link label"><button>Cut string</button><button class="dsh">Dashed</button><button class="swb" data-c="#b3261e" style="background:#b3261e" aria-label="Red string"></button><button class="swb" data-c="#1d1a18" style="background:#1d1a18" aria-label="Black string"></button><button class="swb" data-c="#2a5d9f" style="background:#2a5d9f" aria-label="Blue string"></button><button class="swb" data-c="#c9922b" style="background:#c9922b" aria-label="Gold string"></button>';
   const i = pop.querySelector("input");
@@ -523,10 +572,11 @@ function openPop(l, e) {
 cv.addEventListener("dblclick", (e) => {
   if (e.target !== cv && e.target !== ln) return;
   const r = cv.getBoundingClientRect();
-  add("note", e.clientX - r.left, e.clientY - r.top - 20);
+  add("note", (e.clientX - r.left) / Z, (e.clientY - r.top) / Z - 20);
 });
 ws.addEventListener("pointerdown", (e) => {
-  if (e.target !== cv && e.target !== ln && e.target !== ws) return;
+  if (e.target !== cv && e.target !== ln && e.target !== ws && e.target !== sz)
+    return;
   closePop();
   setLM(null);
   if (!e.shiftKey) clearSel();
@@ -576,7 +626,11 @@ ws.addEventListener("drop", (e) => {
   e.preventDefault();
   const r = cv.getBoundingClientRect();
   [...e.dataTransfer.files].forEach((f, i) =>
-    addImage(f, e.clientX - r.left + i * 30, e.clientY - r.top - 80 + i * 30),
+    addImage(
+      f,
+      (e.clientX - r.left) / Z + i * 30,
+      (e.clientY - r.top) / Z - 80 + i * 30,
+    ),
   );
 });
 let ct;
@@ -1006,10 +1060,10 @@ function drawMap() {
   });
   const v = document.createElement("b");
   Object.assign(v.style, {
-    left: ws.scrollLeft * s + "px",
-    top: ws.scrollTop * s + "px",
-    width: ws.clientWidth * s + "px",
-    height: ws.clientHeight * s + "px",
+    left: (ws.scrollLeft / Z) * s + "px",
+    top: (ws.scrollTop / Z) * s + "px",
+    width: (ws.clientWidth / Z) * s + "px",
+    height: (ws.clientHeight / Z) * s + "px",
   });
   m.append(v);
 }
@@ -1019,8 +1073,8 @@ const mm = $("#mm"),
   jump = (e) => {
     const r = mm.getBoundingClientRect(),
       s = 176 / W;
-    ws.scrollLeft = (e.clientX - r.left) / s - ws.clientWidth / 2;
-    ws.scrollTop = (e.clientY - r.top) / s - ws.clientHeight / 2;
+    ws.scrollLeft = ((e.clientX - r.left) / s) * Z - ws.clientWidth / 2;
+    ws.scrollTop = ((e.clientY - r.top) / s) * Z - ws.clientHeight / 2;
   };
 mm.onpointerdown = (e) => {
   e.preventDefault();
@@ -1099,10 +1153,10 @@ $("#bx").onclick = () => {
 $("#bs").onclick = () => {
   if (!S.cards.length) return;
   snap();
-  const x0 = ws.scrollLeft,
-    y0 = ws.scrollTop,
-    w = Math.max(300, ws.clientWidth - 260),
-    h = Math.max(300, ws.clientHeight - 300);
+  const x0 = ws.scrollLeft / Z,
+    y0 = ws.scrollTop / Z,
+    w = Math.max(300, ws.clientWidth / Z - 260),
+    h = Math.max(300, ws.clientHeight / Z - 300);
   S.cards.forEach((c) => {
     c.x = clamp(Math.round(x0 + Math.random() * w), 0, W - 220);
     c.y = clamp(Math.round(y0 + 60 + Math.random() * h), 0, H - 260);
@@ -1167,15 +1221,15 @@ $("#bm").onclick = () => {
 };
 function bandStart(e) {
   const r = cv.getBoundingClientRect(),
-    x0 = e.clientX - r.left,
-    y0 = e.clientY - r.top,
+    x0 = (e.clientX - r.left) / Z,
+    y0 = (e.clientY - r.top) / Z,
     b = document.createElement("div"),
     base = e.shiftKey ? new Set(sel) : new Set();
   b.className = "band";
   cv.append(b);
   const mv = (v) => {
-    const x1 = v.clientX - r.left,
-      y1 = v.clientY - r.top,
+    const x1 = (v.clientX - r.left) / Z,
+      y1 = (v.clientY - r.top) / Z,
       l = Math.min(x0, x1),
       t = Math.min(y0, y1),
       w = Math.abs(x1 - x0),
@@ -1218,6 +1272,8 @@ function openStamp(c, d, show) {
   pop.className = "pop sp";
   pop.style.left = clamp(c.x, 0, W - 280) + "px";
   pop.style.top = c.y + d.offsetHeight + 8 + "px";
+  pop.style.transformOrigin = "0 0";
+  pop.style.transform = "scale(" + 1 / Z + ")";
   pop.innerHTML =
     '<div class="hd"><b>Stamp this card</b><button class="cx" aria-label="Cancel" title="Cancel and undo changes">×</button></div><input maxlength="24" placeholder="Type your own stamp" aria-label="Stamp text"><div class="chips">' +
     STAMPS.slice(1)
@@ -1319,5 +1375,107 @@ document.fonts &&
     drawLinks();
   });
 drawLinks();
+// ---- Zoom ----
+const ZMIN = 0.25,
+  ZMAX = 2;
+function setZoom(nz, cx, cy) {
+  nz = clamp(+nz.toFixed(3), ZMIN, ZMAX);
+  if (nz === Z) return;
+  if (cx == null) {
+    cx = ws.clientWidth / 2;
+    cy = ws.clientHeight / 2;
+  }
+  const px = (ws.scrollLeft + cx) / Z,
+    py = (ws.scrollTop + cy) / Z;
+  Z = nz;
+  cv.style.transform = "scale(" + Z + ")";
+  sz.style.width = W * Z + "px";
+  sz.style.height = H * Z + "px";
+  ws.scrollLeft = px * Z - cx;
+  ws.scrollTop = py * Z - cy;
+  $("#zv").textContent = Math.round(Z * 100) + "%";
+  closePop();
+  drawMap();
+}
+function fitAll() {
+  if (!S.cards.length) {
+    setZoom(1);
+    return;
+  }
+  let x0 = 1e9,
+    y0 = 1e9,
+    x1 = 0,
+    y1 = 0;
+  S.cards.forEach((c) => {
+    const e = el(c.id),
+      w = e ? e.offsetWidth : 210,
+      h = e ? e.offsetHeight : 200;
+    x0 = Math.min(x0, c.x);
+    y0 = Math.min(y0, c.y);
+    x1 = Math.max(x1, c.x + w);
+    y1 = Math.max(y1, c.y + h);
+  });
+  setZoom(
+    Math.min(
+      ws.clientWidth / (x1 - x0 + 160),
+      ws.clientHeight / (y1 - y0 + 160),
+      1.5,
+    ),
+  );
+  ws.scrollLeft = ((x0 + x1) / 2) * Z - ws.clientWidth / 2;
+  ws.scrollTop = ((y0 + y1) / 2) * Z - ws.clientHeight / 2;
+}
+$("#zi").onclick = () => setZoom(Z * 1.2);
+$("#zo").onclick = () => setZoom(Z / 1.2);
+$("#zv").onclick = () => setZoom(1);
+$("#zf").onclick = fitAll;
+ws.addEventListener(
+  "wheel",
+  (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const r = ws.getBoundingClientRect();
+    setZoom(
+      Z * Math.exp(-e.deltaY * 0.0015),
+      e.clientX - r.left,
+      e.clientY - r.top,
+    );
+  },
+  { passive: false },
+);
+let pinchD = 0;
+ws.addEventListener(
+  "touchmove",
+  (e) => {
+    if (e.touches.length !== 2) {
+      pinchD = 0;
+      return;
+    }
+    e.preventDefault();
+    const a = e.touches[0],
+      b = e.touches[1],
+      d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+      r = ws.getBoundingClientRect();
+    if (pinchD)
+      setZoom(
+        (Z * d) / pinchD,
+        (a.clientX + b.clientX) / 2 - r.left,
+        (a.clientY + b.clientY) / 2 - r.top,
+      );
+    pinchD = d;
+  },
+  { passive: false },
+);
+ws.addEventListener("touchend", () => {
+  pinchD = 0;
+});
+addEventListener("keydown", (e) => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target.closest && e.target.closest("input,textarea")) return;
+  if (e.key === "+" || e.key === "=") setZoom(Z * 1.2);
+  else if (e.key === "-") setZoom(Z / 1.2);
+  else if (e.key === "0") setZoom(1);
+});
+
 ws.scrollLeft = 1100;
 ws.scrollTop = 700;
