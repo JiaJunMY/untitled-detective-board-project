@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Case Board</title>
+    <meta
+      name="description"
+      content="A detective-style corkboard for linking notes, images and clues with red string."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Case board</h1>
+      <button id="bn">+ Note</button><button id="bp">+ Image</button>
+      <div class="menu" id="mCard">
+        <button class="mb" aria-expanded="false">Card types ▾</button>
+        <div class="mp" hidden>
+          <button class="nt" data-t="sticky">Sticky note</button
+          ><button class="nt" data-t="clip">News clipping</button
+          ><button class="nt" data-t="receipt">Receipt</button
+          ><button class="nt" data-t="sketch">Sketch pad</button
+          ><button class="nt" data-t="mugshot">Mugshot (pick image)</button
+          ><button class="nt" data-t="bag">Evidence bag (pick image)</button>
+        </div>
+      </div>
+      <button id="bu" disabled>Undo</button
+      ><button
+        id="bm"
+        title="Switch between dragging the board and selecting cards"
+      >
+        Mode: Drag</button
+      ><button id="bd" hidden></button>
+      <div class="menu" id="mArr">
+        <button class="mb" aria-expanded="false">Arrange ▾</button>
+        <div class="mp" hidden>
+          <button id="bt">Timeline</button
+          ><button
+            id="bx"
+            title="Pull linked cards together and push unrelated ones apart"
+          >
+            Untangle</button
+          ><button id="bs" title="Toss every card across the screen">
+            Scatter
+          </button>
+        </div>
+      </div>
+      <div class="menu">
+        <button class="mb" aria-expanded="false">Tools ▾</button>
+        <div class="mp" hidden>
+          <button id="ba">Select all</button
+          ><button
+            id="bj"
+            title="Chain the selected cards together with strings"
+          >
+            Link selected</button
+          ><button id="bq" title="Copy the selected cards (Ctrl+D)">
+            Duplicate</button
+          ><button
+            id="bl"
+            title="Select one card, then follow every string from it"
+          >
+            Trace</button
+          ><button id="br">Report</button><button id="bk">Lock</button
+          ><button id="bf">Flashlight</button
+          ><button id="bg">Board: Cork</button
+          ><button id="bz">Sound: off</button>
+        </div>
+      </div>
+      <div class="menu">
+        <button class="mb" aria-expanded="false">More ▾</button>
+        <div class="mp" hidden>
+          <button id="bh">Help</button><button id="bb">Backup</button
+          ><button id="bc">Clear board</button>
+        </div>
+      </div>
+      <input
+        id="sq"
+        type="search"
+        placeholder="Search the board"
+        aria-label="Search the board"
+      /><span id="st">Double-click the board to pin a note</span>
+      <input id="fi" type="file" accept="image/*" multiple hidden />
+    </header>
+    <div id="ws">
+      <div id="cv">
+        <input
+          class="plate"
+          id="ct"
+          maxlength="40"
+          placeholder="Name this case"
+          aria-label="Case name"
+        /><svg id="ln"></svg>
+      </div>
+    </div>
+    <div id="mm" aria-label="Board map"></div>
+    <div class="dlg" id="rp" hidden>
+      <p>Your case notes, oldest dated first. Copy them to paste anywhere.</p>
+      <textarea id="rpx" readonly aria-label="Case report"></textarea>
+      <div class="row">
+        <button id="rpc">Copy</button><button id="rpz">Close</button
+        ><span id="rpm"></span>
+      </div>
+    </div>
+    <div id="fx" hidden></div>
+    <div class="help" id="hp" hidden>
+      <b>How the board works</b>
+      <ul>
+        <li>Double-click the board, or press Add note, to pin a note.</li>
+        <li>
+          To connect two notes, press Link on one, then click the other.
+          Dragging the red pin onto another note works too.
+        </li>
+        <li>Click a string to label it or cut it. Press N for a new note.</li>
+        <li>
+          Drop or paste images onto the board. Mode switches between dragging
+          the board and box-selecting cards. Ctrl/Cmd+A selects everything, and
+          selected cards move together.
+        </li>
+      </ul>
+      <button id="hx">Got it</button>
+    </div>
+    <div class="dlg" id="dl" hidden>
+      <p>
+        Copy this text to back up your board. To restore, paste a backup here
+        and choose Load.
+      </p>
+      <textarea id="dt" aria-label="Board backup"></textarea>
+      <div class="row">
+        <button id="dcp">Copy</button><button id="dld">Load</button
+        ><button id="dcl">Close</button><span id="dm"></span>
+      </div>
+    </div>
+    <script src="js/app.js"></script>
+  </body>
+</html>
