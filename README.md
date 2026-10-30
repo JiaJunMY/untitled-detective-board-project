@@ -1,4 +1,4 @@
-# Case Board
+# Untitled Detective Case Board Simulator
 
 <img width="1177" height="877" alt="Screenshot 2026-10-30 151822" src="https://github.com/user-attachments/assets/b127ce28-5bc6-4918-bc8b-455cf71133c2" />
 
