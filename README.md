@@ -5,7 +5,7 @@
 A detective-style corkboard for linking notes, images and clues with red string.
 Plain HTML, CSS and JavaScript. No build step, no dependencies.
 
-Link to try out: <a href=https://jiajunmy.github.io/untitled-detective-board-project/> Github Link </a>
+Link to try out: <a href=https://jiajunmy.github.io/untitled-detective-board-project/ target="_blank"> Github Link </a>
 
 Currently, this is a fun side project only used for personal use. (Like tabletop detective games & etc)
 
